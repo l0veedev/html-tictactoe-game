@@ -9,7 +9,7 @@ A lightweight, high-performance open-source Tic-Tac-Toe game built with pure HTM
 - Tap the screen after the game ends to restart.
 
 ### Play Online
-You can play the game instantly in your browser via [GitHub Pages](https://l0veedev.github.io/html-tictactoe-game/).
+You can play the game instantly in your browser via [GitHub Pages](https://l0veedev.github.io/html-tictacttoe-game/).
 
 ---
 
@@ -90,6 +90,7 @@ You can play the game instantly in your browser via [GitHub Pages](https://l0vee
 
         let grid = ['', '', '', '', '', '', '', '', ''];
         let active = true;
+        let isBotThinking = false;
         let text = '';
 
         function render() {
@@ -161,91 +162,3 @@ You can play the game instantly in your browser via [GitHub Pages](https://l0vee
                 if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                     return board[a];
                 }
-            }
-            if (!board.includes('')) return 'tie';
-            return null;
-        }
-
-        function botTurn() {
-            if (!active) return;
-            let empty = grid.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-            if (empty.length === 0) return;
-
-            for (let i of empty) {
-                grid[i] = 'O';
-                if (checkWinner(grid) === 'O') {
-                    active = false;
-                    text = 'Bot Wins!';
-                    render();
-                    return;
-                }
-                grid[i] = '';
-            }
-
-            for (let i of empty) {
-                grid[i] = 'X';
-                if (checkWinner(grid) === 'X') {
-                    grid[i] = 'O';
-                    updateState();
-                    return;
-                }
-                grid[i] = '';
-            }
-
-            if (grid[4] === '') {
-                grid[4] = 'O';
-                updateState();
-                return;
-            }
-
-            let rnd = empty[Math.floor(Math.random() * empty.length)];
-            grid[rnd] = 'O';
-            updateState();
-        }
-
-        function updateState() {
-            let res = checkWinner(grid);
-            if (res === 'X') {
-                active = false;
-                text = 'You Win!';
-            } else if (res === 'O') {
-                active = false;
-                text = 'Bot Wins!';
-            } else if (res === 'tie') {
-                active = false;
-                text = "It's a Tie!";
-            }
-            render();
-        }
-
-        function handleInput(clientX, clientY) {
-            if (!active) {
-                grid = ['', '', '', '', '', '', '', '', ''];
-                active = true;
-                render();
-                return;
-            }
-
-            let rect = canvas.getBoundingClientRect();
-            let x = clientX - rect.left;
-            let y = clientY - rect.top;
-            let index = Math.floor(y / cell) * 3 + Math.floor(x / cell);
-
-            if (grid[index] === '' && active) {
-                grid[index] = 'X';
-                updateState();
-                if (active) setTimeout(botTurn, 250);
-            }
-        }
-
-        canvas.addEventListener('click', e => handleInput(e.clientX, e.clientY));
-        canvas.addEventListener('touchend', e => {
-            e.preventDefault();
-            let touch = e.changedTouches[0];
-            handleInput(touch.clientX, touch.clientY);
-        }, { passive: false });
-
-        render();
-    </script>
-</body>
-</html>
