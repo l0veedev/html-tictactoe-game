@@ -72,6 +72,7 @@
 
         let grid = ['', '', '', '', '', '', '', '', ''];
         let active = true;
+        let isBotThinking = false;
         let text = '';
 
         function render() {
@@ -149,15 +150,22 @@
         }
 
         function botTurn() {
-            if (!active) return;
+            if (!active) {
+                isBotThinking = false;
+                return;
+            }
             let empty = grid.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-            if (empty.length === 0) return;
+            if (empty.length === 0) {
+                isBotThinking = false;
+                return;
+            }
 
             for (let i of empty) {
                 grid[i] = 'O';
                 if (checkWinner(grid) === 'O') {
                     active = false;
                     text = 'Bot Wins!';
+                    isBotThinking = false;
                     render();
                     return;
                 }
@@ -169,6 +177,7 @@
                 if (checkWinner(grid) === 'X') {
                     grid[i] = 'O';
                     updateState();
+                    isBotThinking = false;
                     return;
                 }
                 grid[i] = '';
@@ -177,12 +186,14 @@
             if (grid[4] === '') {
                 grid[4] = 'O';
                 updateState();
+                isBotThinking = false;
                 return;
             }
 
             let rnd = empty[Math.floor(Math.random() * empty.length)];
             grid[rnd] = 'O';
             updateState();
+            isBotThinking = false;
         }
 
         function updateState() {
@@ -204,19 +215,25 @@
             if (!active) {
                 grid = ['', '', '', '', '', '', '', '', ''];
                 active = true;
+                isBotThinking = false;
                 render();
                 return;
             }
+
+            if (isBotThinking) return;
 
             let rect = canvas.getBoundingClientRect();
             let x = clientX - rect.left;
             let y = clientY - rect.top;
             let index = Math.floor(y / cell) * 3 + Math.floor(x / cell);
 
-            if (grid[index] === '' && active) {
+            if (index >= 0 && index < 9 && grid[index] === '' && active) {
                 grid[index] = 'X';
                 updateState();
-                if (active) setTimeout(botTurn, 250);
+                if (active) {
+                    isBotThinking = true;
+                    setTimeout(botTurn, 250);
+                }
             }
         }
 
